@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>js原生移动端无缝轮播</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+    <style>
+        * {
+            margin: 0;
+            padding: 0
+        }
+
+        #wrap {
+            position: relative;
+            left: 0;
+            top: 0;
+            overflow: hidden
+        }
+
+        #box {
+            position: absolute;
+            left: 0;
+            top: 0
+        }
+
+        #box li {
+            list-style: none;
+            float: left
+        }
+
+        #box li img {
+            display: block;
+            width: 100%;
+        }
+
+        #nav {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center
+        }
+
+        #nav span {
+            width: 15px;
+            height: 15px;
+            background: deeppink;
+            display: inline-block;
+            border-radius: 50%
+        }
+
+        #nav span.active {
+            background: greenyellow
+        }
+    </style>
+</head>
+<body>
+<div id="wrap">
+    <ul id="box">
+        <li><img src="img/1.jpg" alt=""></li>
+        <li><img src="img/2.jpg" alt=""></li>
+        <li><img src="img/3.jpg" alt=""></li>
+        <li><img src="img/4.jpg" alt=""></li>
+    </ul>
+    <div id="nav">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+</div>
+<script>
+    //清楚浏览器的默认行为
+    document.addEventListener('touchstart', function (e) {
+        e.preventDefault();
+    });
+    window.onload = function () {
+        var wrap = document.querySelector('#wrap');
+        var box = document.querySelector('#box');
+        box.innerHTML += box.innerHTML;
+        var alis = document.querySelectorAll('#box li');
+        var spans = document.querySelectorAll('#nav span');
+        //console.log(spans);
+        //样式初始化
+        styleInt();
+
+        moveIng();
+
+        function styleInt() {
+            box.style.width = 100 * alis.length + '%';
+            wrap.style.height = alis[0].offsetHeight + 'px';
+            for (var i = 0; i < alis.length; i++) {
+                alis[i].style.width = 100 / alis.length + '%';
+            }
+        }
+
+        function moveIng() {
+            var startPoint, endPoint;
+            var Len;
+            var startX = 0;
+            var transX = 0;
+            var now = 0;
+            var timer = 0;
+            spans[now].className = 'active';
+            //自动轮播
+            autoTab();
+            //手指按下
+            box.addEventListener('touchstart', function (e) {
+                clearInterval(timer);
+                startPoint = e.changedTouches[0].pageX;
+                now = Math.round(-transX / wrap.offsetWidth);
+                if (now == 0) {
+                    now = spans.length;
+                }
+                if (now == alis.length - 1) {
+                    now = spans.length - 1;
+                }
+                transX = -now * wrap.offsetWidth;
+                box.style.transform = 'translateX(' + transX + 'px)';
+                startX = transX;
+            });
+            //手指移动
+            box.addEventListener('touchmove', function (e) {
+                clearInterval(timer);
+                endPoint = e.changedTouches[0].pageX;
+                Len = endPoint - startPoint;
+                transX = startX + Len;
+                box.style.transition = 'none';
+                box.style.transform = 'translateX(' + transX + 'px)';
+            });
+            //手指离开
+            box.addEventListener('touchend', function () {
+                now = Math.round(-transX / wrap.offsetWidth);
+                box.style.transform = 'translateX(' + (-now * wrap.offsetWidth) + 'px)';
+                for (var i = 0; i < spans.length; i++) {
+                    spans[i].className = '';
+                }
+                spans[now % spans.length].className = 'active';
+                autoTab();
+            });
+
+            function tab() {
+                box.style.transition = 'all 0.2s';
+                box.style.transform = 'translateX(' + (-now * wrap.offsetWidth) + 'px)';
+                for (var i = 0; i < spans.length; i++) {
+                    spans[i].className = '';
+                }
+                spans[now % spans.length].className = 'active';
+            };
+            //自动轮播
+            function autoTab() {
+                clearInterval(timer);
+                timer = setInterval(function () {
+
+                    if (now == 0) {
+                        now = spans.length;
+                    }
+                    if (now == alis.length - 1) {
+                        now = spans.length - 1;
+                    }
+                    box.style.transition = 'none';
+                    box.style.transform = 'translateX(' + (-now * wrap.offsetWidth) + 'px)';
+                    setTimeout(function () {
+                        now++;
+                        tab();
+                    }, 30)
+
+                }, 1000)
+            }
+        }
+
+    }
+
+</script>
+</body>
+</html>
