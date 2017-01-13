@@ -111,7 +111,7 @@
                 if (now == 0) {
                     now = spans.length;
                 }
-                if (now == alis.length - 1) {
+                if (now >= alis.length - 1) {
                     now = spans.length - 1;
                 }
                 transX = -now * wrap.offsetWidth;
@@ -130,11 +130,7 @@
             //手指离开
             box.addEventListener('touchend', function () {
                 now = Math.round(-transX / wrap.offsetWidth);
-                box.style.transform = 'translateX(' + (-now * wrap.offsetWidth) + 'px)';
-                for (var i = 0; i < spans.length; i++) {
-                    spans[i].className = '';
-                }
-                spans[now % spans.length].className = 'active';
+                tab();
                 autoTab();
             });
 
